@@ -8,23 +8,24 @@
 
 ## 快速开始
 
-**最简单的方式：把下面这段话发给你的 AI Agent，它会自己完成安装。装完后自动运行验证，然后引导你做功能选配。**
+**最简单的方式：把下面这段话原样发给你的 AI Agent。**
 
-> 请帮我安装 ebook-downloader skill。GitHub 地址是 https://github.com/Callioper/ebook-downloader。把整个仓库克隆到我的 skills 目录下（不是只复制 SKILL.md——scripts 和 references 都需要）。如果你不确定我的 skills 目录在哪，告诉我你的 Agent 名称，我告诉你路径。克隆完成后，先运行 `python3 scripts/parse_bookmark_hierarchy.py` 确认脚本可执行，然后引导我完成功能选配——问我有没有本地数据库、有没有下载管理器、需不需要 OCR、需不需要书签注入、需不需要上传分享和通知。每项只问一遍，根据我的回答给安装命令或降级方案。最后输出一份环境变量模板让我保存。
+> 帮我安装 ebook-downloader。仓库地址：https://github.com/Callioper/ebook-downloader
+>
+> 1. 把整个仓库 clone 到你能读取的 skills 目录——不只要 SKILL.md，scripts/ 和 references/ 也要。
+> 2. 装完运行 `python3 scripts/parse_bookmark_hierarchy.py`，确认能输出测试结果。
+> 3. 引导我完成功能选配：逐项问数据库、下载管理器、OCR、书签、上传、通知——每项只问一遍，有就给对接命令，没有就给降级方案。
+> 4. 最后输出一份环境变量模板让我保存。
 
-如果你用的是 Hermes Agent，也可以直接用命令安装：
-
-```bash
-hermes skills install github/Callioper/ebook-downloader
-```
-
-如果你用的是 `npx skills`（支持 Claude Code、Codex、Cursor、Windsurf 等 50+ 种 Agent），一行即可：
+**用命令行安装（支持 skills 的 Agent）：**
 
 ```bash
 npx skills add Callioper/ebook-downloader
 ```
 
-无论哪种方式，安装完成后对 Agent 说「帮我查一下 ebook-downloader skill 的步骤」，如果 Agent 能列出 6 个步骤，说明安装成功。
+适用于 Claude Code、Codex、Cursor、Windsurf 等 50+ 种 Agent。手动安装的话，`git clone https://github.com/Callioper/ebook-downloader` 到你的 skills 目录即可。
+
+**验证安装：** 运行 `python3 scripts/parse_bookmark_hierarchy.py` 输出 4 组测试，确认 scripts/ 完整。再对 Agent 说「列出 ebook-downloader 的步骤」，应输出 6 步管道。
 
 ### 安装故障快速排查
 
