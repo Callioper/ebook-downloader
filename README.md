@@ -1,6 +1,6 @@
 # Ebook Downloader — Agent Skill
 
-一个 **7 步骤电子书下载自动化管道**。从书名/ISBN/SS 码出发，输出带 OCR 文字层和多级书签的 PDF + 分享直链。核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。书签注入和上传分享为可选增强功能。
+一个 **6 步骤电子书下载自动化管道**。从书名/ISBN/SS 码出发，输出带 OCR 文字层和多级书签的 PDF + 分享直链。核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。书签注入和上传分享为可选增强功能。
 
 > 首次使用对 Agent 说「配置 ebook-downloader」，Agent 会逐项询问你的环境情况并输出定制化安装方案。
 
@@ -24,7 +24,7 @@ hermes skills install github/Callioper/ebook-downloader
 npx skills add Callioper/ebook-downloader
 ```
 
-无论哪种方式，安装完成后对 Agent 说「帮我查一下 ebook-downloader skill 的步骤」，如果 Agent 能列出 7 个步骤，说明安装成功。
+无论哪种方式，安装完成后对 Agent 说「帮我查一下 ebook-downloader skill 的步骤」，如果 Agent 能列出 6 个步骤，说明安装成功。
 
 ### 安装故障快速排查
 
@@ -36,7 +36,7 @@ npx skills add Callioper/ebook-downloader
 
 ```
 ebook-downloader/
-├── SKILL.md                          # 核心：Agent 加载的指令文件（7步骤 + I/O契约 + 失败策略）
+├── SKILL.md                          # 核心：Agent 加载的指令文件（6步骤 + I/O契约 + 失败策略）
 ├── README.md                         # 本文件：安装/配置/排错指南
 ├── scripts/
 │   ├── parse_bookmark_hierarchy.py   # 书签层级推断引擎（栈深度模型，4种嵌套模式）
@@ -50,7 +50,7 @@ ebook-downloader/
     └── ghostscript-ocr-corruption.md # Ghostscript 摧毁 OCR 文字层实证
 ```
 
-`SKILL.md` 是 Agent 真正读取的指令文件，包含 7 步管道的完整定义——每步的命令、I/O 契约、失败处理方案。Agent 加载它后就知道如何编排整个下载流程。
+`SKILL.md` 是 Agent 真正读取的指令文件，包含 6 步管道的完整定义——每步的命令、I/O 契约、失败处理方案。Agent 加载它后就知道如何编排整个下载流程。
 
 `scripts/` 下两个 Python 脚本可独立运行：`parse_bookmark_hierarchy.py` 无参数执行输出 4 组内置测试结果，`inject_bookmarks.py` 是完整的书签注入管线（支持 `--offset`、`--ocr`、`--toc-only` 三种模式）。
 
