@@ -26,6 +26,8 @@ npx skills add Callioper/ebook-downloader
 
 无论哪种方式，安装完成后对 Agent 说「帮我查一下 ebook-downloader skill 的步骤」，如果 Agent 能列出 7 个步骤，说明安装成功。
 
+**首次使用建议先跑选配引导：** 对你的 Agent 说「配置 ebook-downloader」，Agent 会逐项询问你的环境情况——有没有本地数据库、有没有下载管理器、需不需要 OCR、要不要书签注入等等——然后输出一份定制化的环境变量模板。配置完后再开始下载图书。
+
 ### 安装故障快速排查
 
 `npx skills: command not found` 意味着 Node.js 版本太低（需要 ≥ 18），运行 `node --version` 确认后升级即可。`git clone` 权限拒绝说明仓库地址不对或用了 SSH 但没配 key，确认 https://github.com/Callioper/ebook-downloader 在浏览器能打开，改用 HTTPS 地址。Agent 不识别 skill 通常是因为 SKILL.md 没放在正确的目录——去看 `npx skills list` 或手动检查文件路径。GitHub 克隆超时的话可以先 `git clone` 到本地再 `npx skills add ./local-path` 安装。
@@ -43,7 +45,8 @@ ebook-downloader/
 │   └── inject_bookmarks.py           # 书签注入引擎（偏移计算 + 分段检测 + 注入后验证）
 └── references/
     ├── evaluation-cases.md           # 评测用例 + 最小可跑路径 + 自检清单
-    └── report-template.md            # 步骤6 结构化报告模板（成功/失败两套格式）
+    ├── report-template.md            # 步骤6 结构化报告模板（成功/失败两套格式）
+    └── setup-guide.md                # 功能选配引导（7项逐项询问 → 环境变量模板）
 ```
 
 `SKILL.md` 是 Agent 真正读取的文件，包含管道架构、每步命令、I/O 契约和失败处理方案。`scripts/parse_bookmark_hierarchy.py` 可独立运行——无参数执行会输出 4 组内置测试的解析结果。`scripts/inject_bookmarks.py` 是完整的 PDF 书签注入实现，含偏移量计算、智能分段检测、phantom 过滤和注入后验证。`references/evaluation-cases.md` 提供了零基础设施可跑路径，假设你没有 EbookDatabase、stacks 或 Z-File，只验证 Anna's Archive 搜索 + OCR 的最小闭环。首次部署建议从这里开始。
