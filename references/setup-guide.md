@@ -68,7 +68,7 @@ proxy:
 
 如果启用 MinerU，询问 WebUI 地址（默认 `http://127.0.0.1:7860`）和 API 地址（默认 `http://127.0.0.1:8000`）。记录为 `mineru.enabled`、`mineru.webui_url`、`mineru.api_url`。
 
-同时提醒注意事项：`--jobs 1` 是强制的（多线程会乱码）；大 PDF 建议分批 OCR。
+线程数选择：推荐单线程（`--jobs 1`，最稳定），也支持 `--jobs 2` 或 `--jobs 4`（速度更快，但 PaddlePaddle 多线程可能存在文字层编码损坏风险）。询问用户偏好的线程数，记录为 `ocr.jobs`。
 
 **自定义：** 用户自由输入 OCR 相关配置：
 ```yaml
