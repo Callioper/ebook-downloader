@@ -44,7 +44,7 @@ ebook-downloader/
 └── references/
     ├── evaluation-cases.md           # 评测用例 + 最小可跑路径 + 自检清单
     ├── report-template.md            # 步骤6 结构化报告模板（成功/失败两套格式）
-    ├── setup-guide.md                # 功能选配引导（7项逐项询问 → 环境变量模板）
+    ├── setup-guide.md                # 功能选配引导（6项逐项询问 → 环境变量模板）
     ├── bookmark-troubleshooting.md   # 书签问题自助手册（7种场景排查）
     ├── download-troubleshooting.md   # 下载错误分类（临时/永久）与常见场景排查
     └── ghostscript-ocr-corruption.md # Ghostscript 摧毁 OCR 文字层实证
@@ -54,7 +54,7 @@ ebook-downloader/
 
 `scripts/` 下两个 Python 脚本可独立运行：`parse_bookmark_hierarchy.py` 无参数执行输出 4 组内置测试结果，`inject_bookmarks.py` 是完整的书签注入管线（支持 `--offset`、`--ocr`、`--toc-only` 三种模式）。
 
-`references/` 下六个参考文件按用途分三类。部署相关：`evaluation-cases.md`（零基础设施可跑路径 + 7 个评测用例）、`setup-guide.md`（7 项逐项选配引导）。排查相关：`bookmark-troubleshooting.md`（书签 7 种场景）、`download-troubleshooting.md`（错误分类与常见场景）、`ghostscript-ocr-corruption.md`（GS 摧毁文字层实证）。格式相关：`report-template.md`（成功/失败两套汇报模板）。
+`references/` 下六个参考文件按用途分三类。部署相关：`evaluation-cases.md`（零基础设施可跑路径 + 7 个评测用例）、`setup-guide.md`（6 项逐项选配引导）。排查相关：`bookmark-troubleshooting.md`（书签 7 种场景）、`download-troubleshooting.md`（错误分类与常见场景）、`ghostscript-ocr-corruption.md`（GS 摧毁文字层实证）。格式相关：`report-template.md`（成功/失败两套汇报模板）。
 
 首次部署建议从 `evaluation-cases.md` 的零基础设施路径开始，然后跑 `setup-guide.md` 的选配引导。
 
