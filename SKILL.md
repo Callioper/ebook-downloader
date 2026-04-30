@@ -285,6 +285,8 @@ export DOWNLOAD_API_KEY="sk-你的-API-Key"
 - 下载超时（大文件）→ 不中断，继续轮询。每 2 分钟报告一次进度（已下载百分比或字节数）。
 - 下载的文件损坏（MD5 不匹配/无法打开）→ 丢弃文件，标记此 MD5 无效，从候选列表中取下一个 MD5 重试。
 
+下载错误分类（临时 vs 永久）和常见场景排查见 `references/download-troubleshooting.md`。
+
 ---
 
 ### 步骤 3：OCR — ocrmypdf + PaddleOCR
@@ -344,7 +346,7 @@ def is_ocr_readable(pdf_path, cjk_ratio_threshold=0.01):
 
 ### 步骤 3.5：PDF 结构压缩
 
-> ⛔ **绝对禁止 Ghostscript `pdfwrite`！** 实测证实它 100% 摧毁 OCR 文字层（《社会形态学》207页全部 CJK=0）
+> ⛔ **绝对禁止 Ghostscript `pdfwrite`！** 实测证实它 100% 摧毁 OCR 文字层（207 页中文 PDF 全部 CJK=0）。完整实证报告见 `references/ghostscript-ocr-corruption.md`。
 
 ```bash
 # 方案A：ocrmypdf 内置优化（安全，推荐）
@@ -403,6 +405,8 @@ python3 scripts/inject_bookmarks.py --toc-only input.pdf output.pdf
 - `parse_bookmark_hierarchy()` 无法推断层级（书签格式不符合已知模式）→ 所有条目按 level=0 平级注入。在 `errors` 列表中记录「书签层级推断失败，已平铺注入」。
 - PDF 元数据缺少出版年份 → 文件名中的年份用 `0000` 占位。在步骤6汇报中标注「出版年缺失」。
 - pikepdf 注入报错（权限/加密 PDF）→ 如果 PDF 有密码保护且不知道密码，跳过书签注入。在 `errors` 中记录。
+
+书签注入的完整排查指南见 `references/bookmark-troubleshooting.md`，覆盖 7 种常见失败场景（offset 计算错误、多段偏移、phantom 过滤等）。
 
 ---
 
@@ -528,7 +532,10 @@ ebook-downloader/
 └── references/
     ├── evaluation-cases.md           # 评测用例 + 最小可跑路径
     ├── report-template.md            # 步骤6 报告格式模板
-    └── setup-guide.md                # 功能选配引导（7项逐项询问）
+    ├── setup-guide.md                # 功能选配引导（7项逐项询问）
+    ├── bookmark-troubleshooting.md   # 书签问题自助手册
+    ├── download-troubleshooting.md   # 下载错误分类与排查
+    └── ghostscript-ocr-corruption.md # Ghostscript 摧毁 OCR 实证
 ```
 
 ## 版本历史（自 v9 起的关键修复）

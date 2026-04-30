@@ -46,7 +46,10 @@ ebook-downloader/
 └── references/
     ├── evaluation-cases.md           # 评测用例 + 最小可跑路径 + 自检清单
     ├── report-template.md            # 步骤6 结构化报告模板（成功/失败两套格式）
-    └── setup-guide.md                # 功能选配引导（7项逐项询问 → 环境变量模板）
+    ├── setup-guide.md                # 功能选配引导（7项逐项询问 → 环境变量模板）
+    ├── bookmark-troubleshooting.md   # 书签问题自助手册（7种场景排查）
+    ├── download-troubleshooting.md   # 下载错误分类（临时/永久）与常见场景排查
+    └── ghostscript-ocr-corruption.md # Ghostscript 摧毁 OCR 文字层实证
 ```
 
 `SKILL.md` 是 Agent 真正读取的文件，包含管道架构、每步命令、I/O 契约和失败处理方案。`scripts/parse_bookmark_hierarchy.py` 可独立运行——无参数执行会输出 4 组内置测试的解析结果。`scripts/inject_bookmarks.py` 是完整的 PDF 书签注入实现，含偏移量计算、智能分段检测、phantom 过滤和注入后验证。`references/evaluation-cases.md` 提供了零基础设施可跑路径，假设你没有 EbookDatabase、stacks 或 Z-File，只验证 Anna's Archive 搜索 + OCR 的最小闭环。首次部署建议从这里开始。
