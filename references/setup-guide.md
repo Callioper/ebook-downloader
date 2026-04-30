@@ -1,6 +1,6 @@
 # 功能选配引导
 
-当用户说「配置 ebook-downloader」「设置 ebook-downloader」「初始化 ebook 管道」或「setup ebook downloader」时，Agent 应按以下流程逐项引导用户完成功能选配。
+当用户说「配置 ebook-downloader」「设置 ebook-downloader」「初始化 ebook 管道」「引导我完成功能选配」或「setup ebook downloader」时，Agent 应按以下流程逐项引导用户完成功能选配。
 
 核心原则：每一步先问用户「有没有」，有就对接，没有就给安装命令或降级方案。全部完成后输出一份环境变量模板供用户保存。
 
