@@ -1,11 +1,11 @@
 ---
 name: ebook-downloader
-description: 7步骤电子书下载管道 — 从书名/ISBN到可搜索PDF+书签+直链。核心三步闭环零依赖可跑通，可选功能通过选配引导按需启用。
+description: 6步骤电子书下载管道 — 从书名/ISBN到可搜索PDF+书签+直链。核心三步闭环零依赖可跑通，可选功能通过选配引导按需启用。
 ---
 
 # Ebook Downloader — 通用参考架构
 
-> 一个 7 步骤的电子书下载自动化管道。核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。书签注入和上传分享为可选增强功能，通过选配引导按需启用（`references/setup-guide.md`）。
+> 一个 6 步骤的电子书下载自动化管道。核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。书签注入和上传分享为可选增强功能，通过选配引导按需启用（`references/setup-guide.md`）。
 
 ---
 
