@@ -48,6 +48,76 @@ git clone https://github.com/Callioper/ebook-downloader.git \
   ~/.claude/skills/ebook-downloader/
 ```
 
+### 所有 Agent 安装速查表
+
+以下是 40+ 种 AI Agent 的安装路径。`npx skills` 会自动选择正确的路径，手动安装时对照此表 `git clone`。
+
+| Agent | `--agent` 参数 | 项目路径 | 全局路径 | 安装命令（手动） |
+|-------|---------------|---------|---------|----------------|
+| **Claude Code** | `claude-code` | `.claude/skills/` | `~/.claude/skills/` | `git clone ... ~/.claude/skills/ebook-downloader/` |
+| **Codex** | `codex` | `.agents/skills/` | `~/.codex/skills/` | `git clone ... ~/.codex/skills/ebook-downloader/` |
+| **Cursor** | `cursor` | `.agents/skills/` | `~/.cursor/skills/` | `git clone ... ~/.cursor/skills/ebook-downloader/` |
+| **Windsurf** | `windsurf` | `.windsurf/skills/` | `~/.codeium/windsurf/skills/` | `git clone ... ~/.codeium/windsurf/skills/ebook-downloader/` |
+| **Cline** | `cline` | `.agents/skills/` | `~/.agents/skills/` | `git clone ... ~/.agents/skills/ebook-downloader/` |
+| **Roo Code** | `roo` | `.roo/skills/` | `~/.roo/skills/` | `git clone ... ~/.roo/skills/ebook-downloader/` |
+| **GitHub Copilot** | `github-copilot` | `.agents/skills/` | `~/.copilot/skills/` | `git clone ... ~/.copilot/skills/ebook-downloader/` |
+| **Gemini CLI** | `gemini-cli` | `.agents/skills/` | `~/.gemini/skills/` | `git clone ... ~/.gemini/skills/ebook-downloader/` |
+| **Antigravity** | `antigravity` | `.agents/skills/` | `~/.gemini/antigravity/skills/` | `git clone ... ~/.gemini/antigravity/skills/ebook-downloader/` |
+| **OpenCode** | `opencode` | `.agents/skills/` | `~/.config/opencode/skills/` | `git clone ... ~/.config/opencode/skills/ebook-downloader/` |
+| **Amp** | `amp` | `.agents/skills/` | `~/.config/agents/skills/` | `git clone ... ~/.config/agents/skills/ebook-downloader/` |
+| **Trae** | `trae` | `.trae/skills/` | `~/.trae/skills/` | `git clone ... ~/.trae/skills/ebook-downloader/` |
+| **Trae CN** | `trae-cn` | `.trae/skills/` | `~/.trae-cn/skills/` | `git clone ... ~/.trae-cn/skills/ebook-downloader/` |
+| **Kiro CLI** | `kiro-cli` | `.kiro/skills/` | `~/.kiro/skills/` | `git clone ... ~/.kiro/skills/ebook-downloader/` |
+| **Augment** | `augment` | `.augment/skills/` | `~/.augment/skills/` | `git clone ... ~/.augment/skills/ebook-downloader/` |
+| **CodeBuddy** | `codebuddy` | `.codebuddy/skills/` | `~/.codebuddy/skills/` | `git clone ... ~/.codebuddy/skills/ebook-downloader/` |
+| **Qwen Code** | `qwen-code` | `.qwen/skills/` | `~/.qwen/skills/` | `git clone ... ~/.qwen/skills/ebook-downloader/` |
+| **Goose** | `goose` | `.goose/skills/` | `~/.config/goose/skills/` | `git clone ... ~/.config/goose/skills/ebook-downloader/` |
+| **Continue** | `continue` | `.continue/skills/` | `~/.continue/skills/` | `git clone ... ~/.continue/skills/ebook-downloader/` |
+| **AiderDesk** | `aider-desk` | `.aider-desk/skills/` | `~/.aider-desk/skills/` | `git clone ... ~/.aider-desk/skills/ebook-downloader/` |
+| **Droid** | `droid` | `.factory/skills/` | `~/.factory/skills/` | `git clone ... ~/.factory/skills/ebook-downloader/` |
+| **Devin** | `devin` | `.devin/skills/` | `~/.config/devin/skills/` | `git clone ... ~/.config/devin/skills/ebook-downloader/` |
+| **IBM Bob** | `bob` | `.bob/skills/` | `~/.bob/skills/` | `git clone ... ~/.bob/skills/ebook-downloader/` |
+| **Kilo Code** | `kilo` | `.kilocode/skills/` | `~/.kilocode/skills/` | `git clone ... ~/.kilocode/skills/ebook-downloader/` |
+| **Mistral Vibe** | `mistral-vibe` | `.vibe/skills/` | `~/.vibe/skills/` | `git clone ... ~/.vibe/skills/ebook-downloader/` |
+| **Cortex Code** | `cortex` | `.cortex/skills/` | `~/.snowflake/cortex/skills/` | `git clone ... ~/.snowflake/cortex/skills/ebook-downloader/` |
+| **MCPJam** | `mcpjam` | `.mcpjam/skills/` | `~/.mcpjam/skills/` | `git clone ... ~/.mcpjam/skills/ebook-downloader/` |
+| **Junie** | `junie` | `.junie/skills/` | `~/.junie/skills/` | `git clone ... ~/.junie/skills/ebook-downloader/` |
+| **Pi** | `pi` | `.pi/skills/` | `~/.pi/agent/skills/` | `git clone ... ~/.pi/agent/skills/ebook-downloader/` |
+| **Kode** | `kode` | `.kode/skills/` | `~/.kode/skills/` | `git clone ... ~/.kode/skills/ebook-downloader/` |
+| **Zencoder** | `zencoder` | `.zencoder/skills/` | `~/.zencoder/skills/` | `git clone ... ~/.zencoder/skills/ebook-downloader/` |
+| **Neovate** | `neovate` | `.neovate/skills/` | `~/.neovate/skills/` | `git clone ... ~/.neovate/skills/ebook-downloader/` |
+| **Pochi** | `pochi` | `.pochi/skills/` | `~/.pochi/skills/` | `git clone ... ~/.pochi/skills/ebook-downloader/` |
+| **AdaL** | `adal` | `.adal/skills/` | `~/.adal/skills/` | `git clone ... ~/.adal/skills/ebook-downloader/` |
+| **Hermes Agent** | `hermes` | — | `~/.hermes/skills/` | `hermes skills install github/Callioper/ebook-downloader` |
+| **OpenClaw** | `openclaw` | `skills/` | `~/.openclaw/skills/` | `git clone ... ~/.openclaw/skills/ebook-downloader/` |
+
+> **提示：** 不确定你的 Agent 名称？运行 `npx skills add Callioper/ebook-downloader` 不加 `-a` 参数，CLI 会自动检测已安装的 Agent 并让你选择。
+
+### Agent 专属配置
+
+某些 Agent 需要额外配置才能加载 skill：
+
+**OpenClaw** — 需要在 `~/.openclaw/config.yaml` 中声明 skill 路径，或确保 `allowed-tools` 包含 skill 所需的工具（terminal、python 等）：
+
+```yaml
+# ~/.openclaw/config.yaml
+skills:
+  paths:
+    - ~/.openclaw/skills/
+```
+
+**Kiro CLI** — 默认自动加载 `~/.kiro/skills/`，无需额外配置。如果使用自定义 Agent，在 `~/.kiro/agents/<agent>.json` 中添加：
+
+```json
+{
+  "resources": ["skill://~/.kiro/skills/**/SKILL.md"]
+}
+```
+
+**GitHub Copilot** — 在 VS Code 中安装后，Copilot Chat 会自动发现 `.agents/skills/` 或 `~/.copilot/skills/` 下的 SKILL.md。无需额外配置。
+
+**Augment / Cursor / Windsurf** — 使用 `.agents/skills/`（项目级）或各自全局路径。这些 Agent 通常会自动扫描 skills 目录。
+
 ---
 
 ## 这个 Skill 做什么
