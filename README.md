@@ -1,8 +1,8 @@
 # Ebook Downloader — Agent Skill
 
-一个 **7 步骤电子书下载自动化管道**的通用参考架构。从书名/ISBN/SS 码出发，输出带 OCR 文字层和多级书签的 PDF + 分享直链。
+一个 **7 步骤电子书下载自动化管道**。从书名/ISBN/SS 码出发，输出带 OCR 文字层和多级书签的 PDF + 分享直链。它是一个可被 AI Agent 加载的 SKILL.md 指令文件——Agent 读取它后就知道如何编排下载管道。管道中的部分步骤依赖自建基础设施，但核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。
 
-> ⚠️ **这不是开箱即用的工具。** 它是一个可被 AI Agent 加载的 **SKILL.md 指令文件**——Agent 读取它后就知道如何编排下载管道。但管道中的每个步骤都依赖你**自建的基础设施**。详见 [适配备忘](#适配备忘)。
+> 首次使用对 Agent 说「配置 ebook-downloader」，Agent 会逐项询问你的环境情况并输出定制化安装方案。
 
 ---
 
@@ -55,7 +55,7 @@ ebook-downloader/
 
 ## 这个 Skill 做什么
 
-当你的 AI Agent 加载此 skill 后，在你说「帮我下载《XXX》这本书」时，Agent 会按以下管道执行：
+Agent 加载此 skill 后，说「下载 《书名》」「检索并下载 ISBN xxx」或「用 SS 码 xxx 下载」都会触发以下管道：
 
 ```
 用户说「下载 《形而上学的巴别塔》」
@@ -63,39 +63,30 @@ ebook-downloader/
     ▼
 ┌─────────────────┐
 │ ① 检索元数据     │  本地 DB 模糊搜索 → NLC 校验 → 书葵网取书签
-│ 输出：书名/ISBN/ │
+│ 输出：书名/ISBN/ │  无数据库时降级为纯 Anna's Archive 搜索
 │ SS码/书签文本     │
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│ ② 下载 PDF       │  Anna's Archive 搜 MD5 → 下载管理器排队 → 轮询完成
-│ 输出：本地 PDF    │  （文件类型自动修正：.zip→.pdf、PDG→PDF）
+│ ② 下载 PDF       │  Anna's Archive 搜 MD5 → stacks 下载管理器排队
+│ 输出：本地 PDF    │  无 stacks 时尝试 curl 直链下载
 └────────┬────────┘
          ▼
 ┌─────────────────┐
 │ ③ OCR            │  ocrmypdf + PaddleOCR（--jobs 1 防乱码）
-│ 输出：可搜索 PDF  │  后验证 CJK 文字比率
-└────────┬────────┘
-         ▼
-┌─────────────────┐
-│ ③.5 压缩         │  ocrmypdf --optimize 1 或 qpdf --recompress-flate
-│ ⛔ 禁止 GS       │  （Ghostscript pdfwrite 摧毁 OCR 文字层）
+│ 输出：可搜索 PDF  │  后验证 CJK 文字比率（已有文字层则跳过）
 └────────┬────────┘
          ▼
 ┌─────────────────┐
 │ ④ 生成书签       │  书葵网书签优先 → 降级A（仅目录页）→ 降级B（AI Vision）
-│ 输出：带多级书签  │  栈深度模型自动推断"部分>章>节>一、"层级
-│ PDF + 规范文件名  │  命名：书名_作者（YYYYMMDD）.pdf
+│ 输出：带书签 PDF  │  脚本：scripts/inject_bookmarks.py
 └────────┬────────┘
          ▼
-┌─────────────────┐
-│ ⑤ 上传 + 直链    │  REST API 两步上传 → 30 天直链
-│ 输出：分享 URL    │
-└────────┬────────┘
-         ▼
-┌─────────────────┐
-│ ⑥ 生成报告       │  结构化汇报：元数据 / 文件大小 / OCR 结果 / 书签来源 / 链接
-└─────────────────┘
+┌─────────────────┐        ┌─────────────────┐
+│ ⑤ 上传 + 直链    │        │ ⑥ 生成报告       │
+│ 可选：无后端则跳过 │   →   │ 参照 report-     │
+│ Z-File / S3 等   │        │ template.md     │
+└─────────────────┘        └─────────────────┘
 ```
 
 ---
@@ -138,84 +129,9 @@ export https_proxy="http://127.0.0.1:7890"
 
 ---
 
-## 架构决策记录
+## 核心发现
 
-### 1. 为什么不直接用 EbookDatabase 的 MD5 下载？
-
-```
-EbookDatabase second_pass_code 格式：
-  944b8c6fc6d9076...#6cea7d57cd9e0bf5...#11440378#12928975_何为女性.zip
-  └─ MD5 part1 ─┘#└─ MD5 part2 ─┘#filesize#filename
-  ↑ 这是 DuXiu 内部格式，下载管理器不接受
-
-Anna's Archive 真实 MD5：
-  21a20f838a2bc8a8efe5e4b1073dc1cf
-  ↑ 这才是可用的下载标识符
-```
-
-**结论：** 绕过本地数据库的 MD5，直接从 Anna's Archive 搜索页提取真实 MD5。
-
-### 2. 为什么 OCR 必须 --jobs 1？
-
-PaddleOCR + ocrmypdf 在多线程模式下（`--jobs > 1`）会 **100% 静默产生乱码**——PDF 看起来正常，但文字层的中文全部损坏。根因是 PaddlePaddle 的线程冲突导致文本编码错误。
-
-**防御方案：**
-- 强制 `--jobs 1`
-- OCR 后用 `is_ocr_readable()` 检测 CJK 字符比率
-
-### 3. 为什么不能用 Ghostscript 压缩？
-
-实测：Ghostscript `-sDEVICE=pdfwrite` 处理后，《社会形态学》207 页的 OCR 文字层 **CJK=0，全部丢失**。
-
-**正确方案：**
-- `ocrmypdf --optimize 1`（内置安全优化）
-- `qpdf --recompress-flate`（纯结构压缩，不触文字层）
-
-### 4. 书签为什么有三层降级？
-
-| 优先级 | 来源 | 触发条件 |
-|--------|------|---------|
-| 第一 | 书葵网书签 | 步骤① 拿到了书签文本 |
-| 降级A | 仅目录页 | 书葵网页面存在但书签为空 |
-| 降级B | AI Vision | 用户明确说「用 AI 识别目录」 |
-
-降级A 是默认行为——因为从 OCR 提取目录页文字来确定 offset 在实践中不可靠。
-
----
-
-## 适配备忘：把你的环境接进来
-
-对照下表，把「原版实现」换成你自己的方案：
-
-| 步骤 | 原版实现 | 接口契约 | 你替换为 |
-|------|---------|---------|---------|
-| ① | EbookDatabase HTTP API (localhost:10223) | `GET /search?q={keyword}` → JSON | 你自己的元数据源 |
-| ① | NLC 联合编目 API | `nlc_isbn(isbn)` → {title, author, publisher, comments, tags} | 其他书目 API |
-| ① | 书葵网爬虫 (shukui.net) | `bookmarkget(isbn)` → 书签纯文本 | 其他书签来源 |
-| ② | Anna's Archive 搜索 | `curl annas-archive.gd/search?q={query}` → HTML → `/md5/{hash}` | 同（公网服务） |
-| ② | stacks Docker (localhost:7788) | `POST /api/queue/add {"md5":"..."}` → 下载到磁盘 | 任何 HTTP 下载管理器 |
-| ③ | ocrmypdf + PaddleOCR | CLI 命令（见 SKILL.md 步骤 3） | 同或 Tesseract（CJK 效果差） |
-| ④ | pikepdf/PyMuPDF 注入 | `inject_bookmarks(pdf, tree)` | 同（Python 库） |
-| ⑤ | Z-File (内网:32771) | 两步上传：`POST presign` → `PUT file` | S3 Presigned URL / Nextcloud WebDAV |
-| ⑤ | cpolar 隧道 | 内网 32771 → `https://zfile.vip.cpolar.top` | Cloudflare Tunnel / frp |
-| ⑥ | Telegram Bot API | `sendMessage` | 飞书 / 企业微信 / 邮件 |
-
-### 最小可行适配
-
-如果你只想验证管道，可以先搭这些：
-
-1. **步骤②** 是硬依赖——必须有 Anna's Archive 搜索（公网）和下载管理器
-2. **步骤③** 可以用 `ocrmypdf --skip-text` 跳过（如果 PDF 已有文字层）
-3. **步骤④** 可以用 pikepdf 写死一个「目录页」书签作为降级A
-4. **步骤⑤⑥** 可以暂时用本地文件 + `ls -lh` 代替
-
----
-
-## 在你的 Agent 中触发
-
-Agent 加载此 skill 后，说「下载 《书名》」「帮我找 《书名》」「检索并下载 ISBN 978-7-xxx-xxxxx-x」或「用 SS 码 12662374 下载」都会触发管道。Agent 自动按 SKILL.md 中的 7 步骤编排，逐步确认或自动执行。
-
----
+几个在实战中验证过的关键结论，避免踩坑：EbookDatabase 的 `second_pass_code` 不是 Anna's Archive 可用的 MD5 格式，下载必须从 Anna's Archive 搜索页直接提取 32 位十六进制 MD5。PaddleOCR 在多线程下（`--jobs > 1`）会 100% 静默产生乱码，强制 `--jobs 1` 是 OCR 命令里最重要的一行。Ghostscript 的 `pdfwrite` 会彻底摧毁 CJK 文字层——《社会形态学》207 页实测 CJK=0，压缩只能用 `ocrmypdf --optimize 1` 或 `qpdf --recompress-flate`。书葵网书签是扁平文本没有缩进，必须用命名规则推断层级（"第X部分 > 第X章 > 第X节 > 一、"），旧的 Tab 缩进法完全无效。
 
 ## 常见问题排查
 
