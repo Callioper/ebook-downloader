@@ -1,6 +1,6 @@
 # Ebook Downloader — Agent Skill
 
-一个 **7 步骤电子书下载自动化管道**。从书名/ISBN/SS 码出发，输出带 OCR 文字层和多级书签的 PDF + 分享直链。它是一个可被 AI Agent 加载的 SKILL.md 指令文件——Agent 读取它后就知道如何编排下载管道。管道中的部分步骤依赖自建基础设施，但核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。
+一个 **7 步骤电子书下载自动化管道**。从书名/ISBN/SS 码出发，输出带 OCR 文字层和多级书签的 PDF + 分享直链。核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。书签注入和上传分享为可选增强功能。
 
 > 首次使用对 Agent 说「配置 ebook-downloader」，Agent 会逐项询问你的环境情况并输出定制化安装方案。
 
@@ -8,9 +8,9 @@
 
 ## 快速开始
 
-**最简单的方式：把下面这段话发给你的 AI Agent，它会自己完成安装。**
+**最简单的方式：把下面这段话发给你的 AI Agent，它会自己完成安装。装完后自动运行验证，然后引导你做功能选配。**
 
-> 请帮我安装 ebook-downloader skill。它的 GitHub 地址是 https://github.com/Callioper/ebook-downloader。你需要先克隆这个仓库，然后把 SKILL.md 放到我的 skills 目录下。如果你不确定我的 skills 目录在哪，告诉我你的 Agent 名称（比如 Claude Code、Cursor、Hermes、OpenClaw 等），我会告诉你路径。装好后，运行 `python3 scripts/parse_bookmark_hierarchy.py` 确认脚本可以正常执行。
+> 请帮我安装 ebook-downloader skill。GitHub 地址是 https://github.com/Callioper/ebook-downloader。把整个仓库克隆到我的 skills 目录下（不是只复制 SKILL.md——scripts 和 references 都需要）。如果你不确定我的 skills 目录在哪，告诉我你的 Agent 名称，我告诉你路径。克隆完成后，先运行 `python3 scripts/parse_bookmark_hierarchy.py` 确认脚本可执行，然后引导我完成功能选配——问我有没有本地数据库、有没有下载管理器、需不需要 OCR、需不需要书签注入、需不需要上传分享和通知。每项只问一遍，根据我的回答给安装命令或降级方案。最后输出一份环境变量模板让我保存。
 
 如果你用的是 Hermes Agent，也可以直接用命令安装：
 
@@ -25,8 +25,6 @@ npx skills add Callioper/ebook-downloader
 ```
 
 无论哪种方式，安装完成后对 Agent 说「帮我查一下 ebook-downloader skill 的步骤」，如果 Agent 能列出 7 个步骤，说明安装成功。
-
-**首次使用建议先跑选配引导：** 对你的 Agent 说「配置 ebook-downloader」，Agent 会逐项询问你的环境情况——有没有本地数据库、有没有下载管理器、需不需要 OCR、要不要书签注入等等——然后输出一份定制化的环境变量模板。配置完后再开始下载图书。
 
 ### 安装故障快速排查
 

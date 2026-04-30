@@ -29,15 +29,23 @@ docker run -d --name ebookdb -v ~/ebookdb/instance:/app/instance -p 10223:10223 
 
 同时说明：不装也可以，管道会降级为纯 Anna's Archive 搜索，但会丢失 NLC 元数据校验和书葵网书签——这意味着步骤④ 的书签注入只能走降级A（仅目录页）。
 
-### 第 2 项：下载管理器（步骤②，核心）
+### 第 2 项：下载管理器与代理（步骤②，核心）
 
-**作用：** 接收 Anna's Archive 的 MD5 哈希，下载 PDF 文件。内置 FlareSolverr 反爬虫。
+**作用：** 接收 Anna's Archive 的 MD5 哈希，下载 PDF 文件。内置 FlareSolverr 反爬虫。如果在中国大陆，还需要代理才能访问 Anna's Archive。
 
-**询问：** 「你有下载管理器（如 stacks）吗？」
+**询问：** 「你有下载管理器（如 stacks）吗？在国内需要代理吗？」
 
-**如果用户说「有」：** 询问 API 地址（默认 `http://localhost:7788`）和 API Key，记录为 `DOWNLOAD_MANAGER_URL` 和 `DOWNLOAD_API_KEY`。
+两项合并询问，四种组合：
 
-**如果用户说「没有」：** 推荐安装 stacks + FlareSolverr，给出 docker-compose 一键命令：
+**有 stacks，在国内：** 记录 `DOWNLOAD_MANAGER_URL` 和 `DOWNLOAD_API_KEY`，同时记录代理地址（默认 `http://127.0.0.1:7890`）为 `http_proxy` 和 `https_proxy`。
+
+**有 stacks，在国外：** 记录 `DOWNLOAD_MANAGER_URL` 和 `DOWNLOAD_API_KEY`，跳过代理。
+
+**没有 stacks，在国内：** 先给代理配置，再给 stacks docker-compose 一键命令。顺序不能反——没代理连 Docker 镜像都拉不下来。
+
+**没有 stacks，在国外：** 直接给 stacks docker-compose 一键命令。
+
+stacks 的 docker-compose 命令：
 
 ```
 mkdir -p ~/stacks/config ~/stacks/download ~/stacks/logs
@@ -61,19 +69,11 @@ EOF
 cd ~/stacks && docker compose up -d
 ```
 
-启动后访问 `http://localhost:7788`，用 admin / stacks 登录，在 Settings 中生成 Admin API Key。
+启动后访问 `http://localhost:7788`，用 admin / stacks 登录，Settings → Generate Admin API Key。
 
-同时说明：不装也可以，管道会尝试直接用 curl 从 Anna's Archive 下载页面提取直链，但成功率较低（Anna's Archive 有 Cloudflare 保护）。如果用户在中国大陆，还需配置代理环境变量 `http_proxy`。
+不装的话管道会尝试直接用 curl 从 Anna's Archive 下载，但成功率低（有 Cloudflare 保护）。
 
-### 第 3 项：代理（步骤②，中国大陆用户需要）
-
-**询问：** 「你在国内吗？访问外网需要代理吗？」
-
-**如果用户说「需要」：** 询问代理地址（默认 `http://127.0.0.1:7890`），记录为 `http_proxy` 和 `https_proxy`。
-
-**如果用户说「不需要」或「在国外」：** 跳过。
-
-### 第 4 项：OCR 引擎（步骤③，核心）
+### 第 3 项：OCR 引擎（步骤③，核心）
 
 **作用：** 将扫描件 PDF 转为可搜索 PDF（含文字层）。
 
@@ -89,41 +89,35 @@ pip install ocrmypdf ocrmypdf-paddleocr paddlepaddle paddleocr PyMuPDF
 
 **如果用户说「不需要」：** OCR 步骤将被跳过。如果 PDF 本身已有文字层，管道会自动检测并跳过 OCR。
 
-### 第 5 项：书签注入（步骤④，可选）
+### 第 4 项：书签注入（步骤④，可选）
 
-**作用：** 从书葵网获取图书目录，自动推断层级，注入 PDF 书签。
+**作用：** 将图书目录注入 PDF 书签，支持点击跳转。完整模式需要书葵网书签数据源（需搭配 EbookDatabase），降级模式只添加一条「目录」书签指向目录页。
 
-**询问：** 「需要书签注入功能吗？」
+**询问：** 「需要书签注入功能吗？如果你有本地图书数据库，书签可以是完整多级目录；如果没有，只能加一条指向目录页的简单书签。」
 
-**如果用户说「需要」：** 确认依赖已安装（`pip install pymupdf pikepdf`）。说明书签来源需要步骤① 有书葵网爬虫，如果没有，只能走降级A（仅添加一条「目录」书签）。本仓库自带 `scripts/inject_bookmarks.py` 和 `scripts/parse_bookmark_hierarchy.py`，可直接使用。
+这样问的好处是用户一开始就知道两种交付物有什么区别——不会选了「需要」之后发现只能降级A 而感到落差。
 
-**如果用户说「不需要」：** 跳过。
+**如果用户选择完整模式：** 确认依赖已安装（`pip install pymupdf pikepdf`），确认 EbookDatabase 和书葵网爬虫已就绪。如果缺少数据源，告知用户当前只能走降级A，完整模式需要额外部署。
 
-### 第 6 项：上传与分享（步骤⑤，可选）
+**如果用户选择降级模式或不需要：** 降级A 始终可用——仅需要 `scripts/inject_bookmarks.py --toc-only`，无需任何外部数据源。
+
+### 第 5 项：上传与分享（步骤⑤，可选）
 
 **作用：** 将 PDF 上传到文件存储，生成分享直链。
 
 **询问：** 「需要上传和分享功能吗？」
 
-**如果用户说「需要」：** 推荐自托管方案，按复杂度排列：
-
-- 轻量级：用 Python 的 `http.server` 或 `python3 -m http.server 8080` 临时分享
-- 中等：部署 Z-File 网盘（Docker），支持直链生成
-- 完整：Nextcloud / MinIO（S3 兼容），支持权限管理
-
-询问用户选择哪种，然后给出对应的 Docker 命令或配置说明。记录 `UPLOAD_SERVICE_URL` 和 `UPLOAD_TOKEN`。
+**如果用户说「需要」：** 推荐自托管方案，按复杂度排列：轻量级用 Python 的 `http.server` 临时分享一条命令即可；中等部署 Z-File 网盘（Docker）支持直链生成；完整方案用 Nextcloud 或 MinIO（S3 兼容）支持权限管理。询问用户选择哪种，给出对应命令，记录 `UPLOAD_SERVICE_URL` 和 `UPLOAD_TOKEN`。
 
 **如果用户说「不需要」：** 跳过。管道完成后只输出本地文件路径。
 
-### 第 7 项：通知通道（步骤⑥，可选）
+### 第 6 项：通知通道（步骤⑥，可选）
 
 **作用：** 管道完成后发送结构化报告。
 
 **询问：** 「需要完成通知吗？通过什么渠道？」
 
-支持渠道：Telegram Bot（需 Bot Token 和 Chat ID）、飞书 Webhook、企业微信 Webhook、邮件（SMTP）。
-
-根据用户选择，给出对应的配置说明，记录必要的 Token/URL。
+支持渠道：Telegram Bot（需 Bot Token 和 Chat ID）、飞书 Webhook、企业微信 Webhook、邮件（SMTP）。根据用户选择给出对应的配置说明，记录必要的 Token 或 URL。
 
 **如果用户说「不需要」：** 报告输出到终端。
 
@@ -131,29 +125,6 @@ pip install ocrmypdf ocrmypdf-paddleocr paddlepaddle paddleocr PyMuPDF
 
 ## 选配完成
 
-全部 7 项询问完毕后，Agent 输出一份汇总，包含：
+全部 6 项询问完毕后，Agent 输出一份汇总，包含已选配和跳过的功能清单、需要安装的软件列表（标注哪些尚未安装），以及一份可直接复制保存的环境变量模板。
 
-1. 已选配的功能清单（打勾的 + 打叉的）
-2. 需要安装的软件列表（尚未安装的）
-3. 一份可直接保存的环境变量模板，格式如下：
-
-```bash
-# === ebook-downloader 环境变量 ===
-
-# 图书数据库（步骤①）
-export EBOOKDB_URL="http://localhost:10223"
-
-# 下载管理器（步骤②）
-export DOWNLOAD_MANAGER_URL="http://localhost:7788"
-export DOWNLOAD_API_KEY="sk-你的-API-Key"
-
-# 代理（如需要）
-export http_proxy="http://127.0.0.1:7890"
-export https_proxy="http://127.0.0.1:7890"
-
-# 上传服务（如需要）
-export UPLOAD_SERVICE_URL="http://your-host:32771"
-export UPLOAD_TOKEN="你的-Token"
-```
-
-最后提示用户：「把上面的环境变量加到 `~/.bashrc` 或 `~/.zshrc`，然后重新打开终端。配置完成后，对我说『下载 《书名》』即可开始使用。」
+最后提示用户：「把上面的环境变量加到你的 shell 配置文件中（通常是 `~/.bashrc` 或 `~/.zshrc`），然后重新打开终端。配置完成后，对我说『下载 《书名》』即可开始使用。建议先用一本确定在 Anna's Archive 上存在的书测试管道是否正常。」
