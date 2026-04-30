@@ -362,38 +362,28 @@ qpdf --recompress-flate --object-streams=generate input.pdf output.pdf
 
 **书签层级自动推断：**
 
-书葵网书签通常是扁平列表，需解析为 PDF 树状层级：
+书签注入的核心代码在 `scripts/inject_bookmarks.py`（依赖 `scripts/parse_bookmark_hierarchy.py`）。主要功能：
 
-```python
-# 栈深度层级推断模型
-# 识别模式：第X部分 > 第X章 > 第X节 > 一、二、... > 1. 2. ...
-def parse_bookmark_hierarchy(flat_bookmarks):
-    """
-    输入：扁平书签行列表
-    [
-      "第一部分 导论",
-      "第一章 开端",
-      "第一节 起点",
-      "一、方法论的转向",
-      "第二章 展开",
-      ...
-    ]
-    输出：多级嵌套书签树
-    [
-      {"title": "第一部分 导论", "level": 0, "children": [
-        {"title": "第一章 开端", "level": 1, "children": [
-          {"title": "第一节 起点", "level": 2, "children": [
-            {"title": "一、方法论的转向", "level": 3},
-          ]},
-        ]},
-        {"title": "第二章 展开", "level": 1},
-      ]},
-    ]
-    """
-    # 正则模式匹配 → 栈深度模型
-    # 脚本位于本仓库 scripts/parse_bookmark_hierarchy.py
-    # 运行 python3 scripts/parse_bookmark_hierarchy.py 查看 4 组内置测试
+- `inject_bookmarks_smart()` — 统一注入入口，自动处理单段/分段偏移、phantom 过滤
+- `find_toc_page_by_label()` — 通过 DuXiu page label `!00001.jpg` 定位目录页
+- `smart_offset_detect_v2()` — 智能多锚点偏移量检测，聚类分析判断是否需要分段
+- `verify_bookmarks()` — 注入后随机抽样验证
+- `format_output_filename()` — 规范化命名 `书名_作者（YYYYMMDD）.pdf`
+
+用法示例：
+
+```bash
+# 完整注入（书签文本文件 + 已知 offset）
+python3 scripts/inject_bookmarks.py input.pdf bookmarks.txt output.pdf --offset 13
+
+# 用 OCR 版辅助计算 offset
+python3 scripts/inject_bookmarks.py input.pdf bookmarks.txt output.pdf --ocr ocr_version.pdf
+
+# 仅添加目录页（降级A）
+python3 scripts/inject_bookmarks.py --toc-only input.pdf output.pdf
 ```
+
+无参数运行 `python3 scripts/inject_bookmarks.py` 查看完整帮助。
 
 **输出文件命名规范：**
 ```
@@ -440,6 +430,12 @@ curl -s "$UPLOAD_SERVICE_URL/api/share/create" \
 - 文件过大被拒（413）→ 用 `qpdf --recompress-flate` 压缩后重试。仍然过大则分卷或放弃上传，报告文件大小。
 - 预签名 URL 过期 → 重新请求预签名 URL 后立即上传。预签名 URL 有效期通常为 5-15 分钟。
 - 直链生成后外网不可达 → 检查隧道工具（cpolar/frp）是否在线。只返回内网直链，标注「外网不可达，原因：隧道离线」。
+
+---
+
+### 步骤 6：生成报告
+
+管道完成后，Agent 应按 `references/report-template.md` 中定义的格式生成结构化报告。关键要求：直链放在最前面，纯文本格式（无代码框/无表格），每个步骤标注完成状态和数据来源。报告模版含成功和部分失败两套格式。
 
 ---
 
@@ -521,9 +517,11 @@ ebook-downloader/
 ├── SKILL.md                          # 本文件
 ├── README.md                         # 安装/配置/排错指南
 ├── scripts/
-│   └── parse_bookmark_hierarchy.py   # 书签层级推断（可独立运行）
+│   ├── parse_bookmark_hierarchy.py   # 书签层级推断（可独立运行，4组测试）
+│   └── inject_bookmarks.py           # 书签注入引擎（偏移计算+分段+验证）
 └── references/
-    └── evaluation-cases.md           # 评测用例
+    ├── evaluation-cases.md           # 评测用例 + 最小可跑路径
+    └── report-template.md            # 步骤6 报告格式模板
 ```
 
 ## 版本历史（自 v9 起的关键修复）

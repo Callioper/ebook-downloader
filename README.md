@@ -39,12 +39,14 @@ ebook-downloader/
 ├── SKILL.md                          # 核心：Agent 加载的指令文件（7步骤 + I/O契约 + 失败策略）
 ├── README.md                         # 本文件：安装/配置/排错指南
 ├── scripts/
-│   └── parse_bookmark_hierarchy.py   # 书签层级推断引擎（栈深度模型，4种嵌套模式）
+│   ├── parse_bookmark_hierarchy.py   # 书签层级推断引擎（栈深度模型，4种嵌套模式）
+│   └── inject_bookmarks.py           # 书签注入引擎（偏移计算 + 分段检测 + 注入后验证）
 └── references/
-    └── evaluation-cases.md           # 评测用例 + 最小可跑路径 + 自检清单
+    ├── evaluation-cases.md           # 评测用例 + 最小可跑路径 + 自检清单
+    └── report-template.md            # 步骤6 结构化报告模板（成功/失败两套格式）
 ```
 
-`SKILL.md` 是 Agent 真正读取的文件，包含管道架构、每步命令、I/O 契约和失败处理方案。`scripts/parse_bookmark_hierarchy.py` 可独立运行——无参数执行会输出 4 组内置测试的解析结果。`references/evaluation-cases.md` 提供了零基础设施可跑路径，假设你没有 EbookDatabase、stacks 或 Z-File，只验证 Anna's Archive 搜索 + OCR 的最小闭环。首次部署建议从这里开始。
+`SKILL.md` 是 Agent 真正读取的文件，包含管道架构、每步命令、I/O 契约和失败处理方案。`scripts/parse_bookmark_hierarchy.py` 可独立运行——无参数执行会输出 4 组内置测试的解析结果。`scripts/inject_bookmarks.py` 是完整的 PDF 书签注入实现，含偏移量计算、智能分段检测、phantom 过滤和注入后验证。`references/evaluation-cases.md` 提供了零基础设施可跑路径，假设你没有 EbookDatabase、stacks 或 Z-File，只验证 Anna's Archive 搜索 + OCR 的最小闭环。首次部署建议从这里开始。
 
 ---
 
