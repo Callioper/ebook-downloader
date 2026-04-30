@@ -1,13 +1,11 @@
 ---
 name: ebook-downloader
-description: 7步骤电子书下载通用参考架构 — 从书名/ISBN到可搜索PDF+书签+直链的全自动管道。可作为构建自托管图书下载Agent的蓝图。
+description: 7步骤电子书下载管道 — 从书名/ISBN到可搜索PDF+书签+直链。核心三步闭环零依赖可跑通，可选功能通过选配引导按需启用。
 ---
 
 # Ebook Downloader — 通用参考架构
 
-> **这是什么？** 一个 7 步骤的电子书下载自动化管道参考实现。你无法直接使用它（因为它依赖你自建的基础设施），但你可以把它当作**架构蓝图**，用自己的工具栈替换每个步骤。
->
-> **原版背景：** 此 skill 最初在 Hermes Agent + WSL2 环境中开发，用于自动化中文学术图书下载（含 OCR + 书签注入）。本版本剥离了 Hermes 专有依赖，改为通用参考。
+> 一个 7 步骤的电子书下载自动化管道。核心的搜索→下载→OCR 三步闭环不需要任何本地服务即可跑通（见 `references/evaluation-cases.md` 的零基础设施路径）。书签注入和上传分享为可选增强功能，通过选配引导按需启用（`references/setup-guide.md`）。
 
 ---
 
@@ -449,16 +447,7 @@ curl -s "$UPLOAD_SERVICE_URL/api/share/create" \
 
 ---
 
-## 适配备忘：从原版迁移到你的环境
-
-| 原版组件 | 作用 | 你需要替换为 |
-|---------|------|------------|
-| EbookDatabase（本地:10223） | 图书元数据检索 | 你的本地数据库或直接调 NLC API |
-| stacks Docker（本地:7788） | Anna's Archive 下载代理 | 自建下载管理器或直接 curl Anna's Archive |
-| 书葵网爬虫（Python模块） | 获取书签 | 自行实现或使用其他书签源 |
-| Z-File（内网:32771） | PDF 存储 + 直链 | Nextcloud / S3 / WebDAV / 任意文件存储 |
-| cpolar 隧道 | 内网穿透（外网访问） | Cloudflare Tunnel / ngrok / frp |
-| Hermes Agent 工具 | 编排调度 | Claude Code / Codex / Cursor 等任意 Agent |
+## 适配备忘
 
 ---
 
@@ -496,17 +485,11 @@ curl -s "$UPLOAD_SERVICE_URL/api/share/create" \
 
 **第四步：查看 `pipeline_state.errors`。** 管道中收集的非致命错误列表是定位问题的第一手材料。每个错误记录了步骤编号和类型，可以快速缩小排查范围。
 
-**第五步：用最小输入复现。** 用一个已知可用的 ISBN（如一本常见的书）跑完整管道，排除是特定图书的问题还是管道本身的问题。
+---
 
 ## 已知限制
 
-- **Z-Library** 每日免费限额 10 本
-- **书葵网** 主要收录古籍/学术 PDF，通俗书大概率无目录
-- **NLC** 主要收录学术专著，通俗小说几乎查不到
-- **Anna's Archive MD5** 是唯一可靠的下载标识符，不接受 second_pass_code 等其他格式
-- **OCR 多线程乱码**：PaddleOCR + ocrmypdf 在 `--jobs > 1` 时 100% 触发
-
----
+Z-Library 每日免费限额 10 本。书葵网主要收录古籍和学术 PDF，通俗书大概率无目录。NLC 主要收录学术专著和政府出版物，通俗小说几乎查不到。Anna's Archive 的 32 位十六进制 MD5 是唯一可靠的下载标识符，不接受 EbookDatabase 的 `second_pass_code` 等其他格式。PaddleOCR + ocrmypdf 在 `--jobs > 1` 时 100% 触发乱码——这是管道中最需要警惕的已知问题。
 
 ---
 

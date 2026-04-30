@@ -52,7 +52,13 @@ ebook-downloader/
     └── ghostscript-ocr-corruption.md # Ghostscript 摧毁 OCR 文字层实证
 ```
 
-`SKILL.md` 是 Agent 真正读取的文件，包含管道架构、每步命令、I/O 契约和失败处理方案。`scripts/parse_bookmark_hierarchy.py` 可独立运行——无参数执行会输出 4 组内置测试的解析结果。`scripts/inject_bookmarks.py` 是完整的 PDF 书签注入实现，含偏移量计算、智能分段检测、phantom 过滤和注入后验证。`references/evaluation-cases.md` 提供了零基础设施可跑路径，假设你没有 EbookDatabase、stacks 或 Z-File，只验证 Anna's Archive 搜索 + OCR 的最小闭环。首次部署建议从这里开始。
+`SKILL.md` 是 Agent 真正读取的指令文件，包含 7 步管道的完整定义——每步的命令、I/O 契约、失败处理方案。Agent 加载它后就知道如何编排整个下载流程。
+
+`scripts/` 下两个 Python 脚本可独立运行：`parse_bookmark_hierarchy.py` 无参数执行输出 4 组内置测试结果，`inject_bookmarks.py` 是完整的书签注入管线（支持 `--offset`、`--ocr`、`--toc-only` 三种模式）。
+
+`references/` 下六个参考文件按用途分三类。部署相关：`evaluation-cases.md`（零基础设施可跑路径 + 7 个评测用例）、`setup-guide.md`（7 项逐项选配引导）。排查相关：`bookmark-troubleshooting.md`（书签 7 种场景）、`download-troubleshooting.md`（错误分类与常见场景）、`ghostscript-ocr-corruption.md`（GS 摧毁文字层实证）。格式相关：`report-template.md`（成功/失败两套汇报模板）。
+
+首次部署建议从 `evaluation-cases.md` 的零基础设施路径开始，然后跑 `setup-guide.md` 的选配引导。
 
 ---
 
@@ -134,7 +140,7 @@ export https_proxy="http://127.0.0.1:7890"
 
 ## 核心发现
 
-几个在实战中验证过的关键结论，避免踩坑：EbookDatabase 的 `second_pass_code` 不是 Anna's Archive 可用的 MD5 格式，下载必须从 Anna's Archive 搜索页直接提取 32 位十六进制 MD5。PaddleOCR 在多线程下（`--jobs > 1`）会 100% 静默产生乱码，强制 `--jobs 1` 是 OCR 命令里最重要的一行。Ghostscript 的 `pdfwrite` 会彻底摧毁 CJK 文字层——《社会形态学》207 页实测 CJK=0，压缩只能用 `ocrmypdf --optimize 1` 或 `qpdf --recompress-flate`。书葵网书签是扁平文本没有缩进，必须用命名规则推断层级（"第X部分 > 第X章 > 第X节 > 一、"），旧的 Tab 缩进法完全无效。
+几个在实战中验证过的关键结论，避免踩坑：EbookDatabase 的 `second_pass_code` 不是 Anna's Archive 可用的 MD5 格式，下载必须从 Anna's Archive 搜索页直接提取 32 位十六进制 MD5。PaddleOCR 在多线程下（`--jobs > 1`）会 100% 静默产生乱码，强制 `--jobs 1` 是 OCR 命令里最重要的一行。Ghostscript 的 `pdfwrite` 会彻底摧毁 CJK 文字层——207 页中文 PDF 实测全部 CJK=0，完整实证见 `references/ghostscript-ocr-corruption.md`，压缩只能用 `ocrmypdf --optimize 1` 或 `qpdf --recompress-flate`。书葵网书签是扁平文本没有缩进，必须用命名规则推断层级（"第X部分 > 第X章 > 第X节 > 一、"），旧的 Tab 缩进法完全无效。
 
 ## 常见问题排查
 
@@ -166,10 +172,7 @@ Anna's Archive 域名在部分地区被封锁。确认代理环境变量（`http
 
 **症状：** 下载完成但文件是 `.zip` 且无法直接打开。
 
-正常现象。管道会自动检测文件类型：
-- zip 内是单文件 PDF → 自动提取并重命名为 `.pdf`
-- zip 内是 PDG/JPG 图片组 → 自动合成为 PDF
-如果自动检测失败，手动用 `file downloaded.zip` 查看真实类型，用 `unzip -l downloaded.zip` 查看内容。
+正常现象。管道会自动检测文件类型——zip 内是单文件 PDF 则自动提取并重命名为 `.pdf`，zip 内是 PDG/JPG 图片组则自动合成为 PDF。如果自动检测失败，手动用 `file downloaded.zip` 查看真实类型，用 `unzip -l downloaded.zip` 查看内容。详细错误分类与常见场景见 `references/download-troubleshooting.md`。
 
 ### 步骤③：OCR
 
@@ -185,7 +188,7 @@ Anna's Archive 域名在部分地区被封锁。确认代理环境变量（`http
 
 **症状：** 报 `KeyError: 'text_word_region'` 或 `ZeroDivisionError`。
 
-前者是 PaddleOCR 2.9.1+ 的 `return_word_box=True` API 变化，需要 patch `ocrmypdf_paddleocr/engine.py`。后者是部分 PDF 元数据 DPI=0 导致的，ocrmypdf 新版已内置补丁，升级到最新版即可。WSL2 用户还要注意 `/tmp` 目录可能被 systemd 自动清理——改用固定目录如 `~/tmp/ocrmypdf`。
+前者是 PaddleOCR 2.9.1+ 的 `return_word_box=True` API 变化，需要 patch `ocrmypdf_paddleocr/engine.py`。后者是部分 PDF 元数据 DPI=0 导致的，ocrmypdf 新版已内置补丁，升级到最新版即可。WSL2 用户还要注意 `/tmp` 目录可能被 systemd 自动清理——改用固定目录如 `~/tmp/ocrmypdf`。关于 Ghostscript 摧毁 OCR 文字层的完整实证，见 `references/ghostscript-ocr-corruption.md`。
 
 ### 步骤④：书签注入
 
@@ -195,7 +198,7 @@ PDF 可能设置了所有者密码（即使打开不需要密码）。用 `qpdf 
 
 **症状：** 注入的书签页码对不上。
 
-PDF 的「逻辑页码」和「物理页码」可能不一致。比如封面、目录、前言用罗马数字（i, ii, iii），正文从第1页开始。如果书签中的页码指的是印刷页码但 offset 错位，检查 PDF 的前几页是否是非正文内容，调整罗马数字页的偏移量。
+PDF 的「逻辑页码」和「物理页码」可能不一致。比如封面、目录、前言用罗马数字（i, ii, iii），正文从第1页开始。如果书签中的页码指的是印刷页码但 offset 错位，检查 PDF 的前几页是否是非正文内容，调整罗马数字页的偏移量。完整排查指南见 `references/bookmark-troubleshooting.md`，覆盖 7 种常见失败场景。
 
 ### 步骤⑤：上传与直链
 
