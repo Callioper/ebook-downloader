@@ -125,9 +125,11 @@ pip install ocrmypdf ocrmypdf-paddleocr paddlepaddle paddleocr PyMuPDF
 
 ## 选配完成
 
-全部 6 项询问完毕后，Agent 输出一份汇总，包含已选配和跳过的功能清单、需要安装的软件列表（标注哪些尚未安装），以及一份可直接复制保存的环境变量模板。
+全部 6 项询问完毕后，Agent 输出一份汇总，包含已选配和跳过的功能清单、需要安装的软件列表（标注哪些尚未安装），以及一份可直接保存的 config.yaml 配置内容。
 
-最后提示用户：「把上面的环境变量加到你的 shell 配置文件中（通常是 `~/.bashrc` 或 `~/.zshrc`），然后重新打开终端。配置完成后，对我说『下载 《书名》』即可开始使用。建议先用一本确定在 Anna's Archive 上存在的书测试管道是否正常。」
+最后提示用户：「把上面的配置保存到 skill 目录下的 `config.yaml` 文件中（即 `~/ebook-downloader/config.yaml`）。配置完成后，对我说『下载 《书名》』即可开始使用。建议先用一本确定在 Anna's Archive 上存在的书测试管道是否正常。」
+
+**迁移说明**：如果此前使用环境变量版本，只需将对应值填入 `config.yaml` 即可。运行 `python3 scripts/config_reader.py` 可查看当前配置状态。
 
 ---
 

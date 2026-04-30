@@ -1,0 +1,51 @@
+# ═══════════════════════════════════════════════════════════
+# ebook-downloader 配置文件
+# 路径：skill 根目录下的 config.yaml（与 SKILL.md 同级）
+#
+# 说明：
+#   - 各步骤按编号排列，缺失/空值 = 该功能跳过
+#   - 不要提交到 git（含敏感信息）
+#   - Python 端通过 scripts/config_reader.py 读取
+#   - 首次使用：cp config.yaml.example config.yaml 后填入实际值
+# ═══════════════════════════════════════════════════════════
+
+# ── 步骤① 图书元数据来源 ──────────────────────────────────
+ebookdb:
+  url: "http://127.0.0.1:10223"
+
+# ── 步骤② 下载管理器（stacks / Anna's Archive） ───────────
+download_manager:
+  url: "http://127.0.0.1:7788"
+  api_key: ""
+
+# ── 步骤③ OCR（可选：MinerU 高精度模式） ─────────────────
+# 不配 mineru → 默认用 ocrmypdf+PaddleOCR（CPU 可运行）
+mineru:
+  enabled: false
+  webui_url: "http://127.0.0.1:7860"
+  api_url: "http://127.0.0.1:8000"
+
+# ── 步骤⑥ 通知渠道（管道完成时发送报告） ────────────────
+notify:
+  # 总开关：false = 不发送通知
+  enabled: false
+  # 渠道：qqbot / telegram / feishu / none
+  channel: "none"
+
+  qqbot:
+    app_id: ""
+    token: ""
+    channel_id: ""
+
+  telegram:
+    bot_token: ""
+    chat_id: ""
+
+  feishu:
+    webhook_url: ""
+
+# ── 代理（可选：国内网络需要） ─────────────────────────
+proxy:
+  http: ""
+  https: ""
+  no_proxy: "127.0.0.1,localhost"

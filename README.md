@@ -25,7 +25,9 @@ npx skills add Callioper/ebook-downloader
 
 适用于 Claude Code、Codex、Cursor、Windsurf 等 50+ 种 Agent。手动安装的话，`git clone https://github.com/Callioper/ebook-downloader` 到你的 skills 目录即可。
 
-**验证安装：** 运行 `python3 scripts/parse_bookmark_hierarchy.py` 输出 4 组测试，确认 scripts/ 完整。再对 Agent 说「列出 ebook-downloader 的步骤」，应输出 6 步管道。
+**快速配置：** 将 `config.yaml.example` 复制为 `config.yaml`，填入你的环境参数（EbookDatabase 地址、stacks API Key、通知渠道配置等）。运行 `python3 scripts/config_reader.py` 确认配置状态。
+
+**验证安装：** 运行 `python3 scripts/parse_bookmark_hierarchy.py` 输出 4 组测试，确认 scripts/ 完整。再对 Agent 说「列出 ebook-downloader 的步骤」，应输出 7 步管道。
 
 ### 安装故障快速排查
 
@@ -37,15 +39,19 @@ npx skills add Callioper/ebook-downloader
 
 ```
 ebook-downloader/
-├── SKILL.md                          # 核心：Agent 加载的指令文件（6步骤 + I/O契约 + 失败策略）
+├── SKILL.md                          # 核心：Agent 加载的指令文件（7步骤 + I/O契约 + 失败策略）
 ├── README.md                         # 本文件：安装/配置/排错指南
+├── config.yaml.example               # 配置文件模板（复制为 config.yaml 填入）
+├── .gitignore
 ├── scripts/
+│   ├── config_reader.py              # 配置读取模块（打码展示 + 类型安全 getter）
 │   ├── parse_bookmark_hierarchy.py   # 书签层级推断引擎（栈深度模型，4种嵌套模式）
 │   └── inject_bookmarks.py           # 书签注入引擎（偏移计算 + 分段检测 + 注入后验证）
 └── references/
     ├── evaluation-cases.md           # 评测用例 + 最小可跑路径 + 自检清单
-    ├── report-template.md            # 步骤6 结构化报告模板（成功/失败两套格式）
-    ├── setup-guide.md                # 功能选配引导（6项逐项询问 → 环境变量模板）
+    ├── step6-config-check.md         # 步骤⑥ 渠道配置检查参考
+    ├── report-template.md            # 步骤⑦ 结构化报告模板（成功/失败两套格式）
+    ├── setup-guide.md                # 功能选配引导（6项逐项询问 → config.yaml 模板）
     ├── bookmark-troubleshooting.md   # 书签问题自助手册（7种场景排查）
     ├── download-troubleshooting.md   # 下载错误分类（临时/永久）与常见场景排查
     └── ghostscript-ocr-corruption.md # Ghostscript 摧毁 OCR 文字层实证
@@ -66,35 +72,35 @@ ebook-downloader/
 Agent 加载此 skill 后，说「下载 《书名》」「检索并下载 ISBN xxx」或「用 SS 码 xxx 下载」都会触发以下管道：
 
 ```
-用户说「下载 《形而上学的巴别塔》」
+用户说「下载 《形而上学的巴别塔」」
     │
     ▼
 ┌─────────────────┐
-│ ① 检索元数据     │  本地 DB 模糊搜索 → NLC 校验 → 书葵网取书签
+│ ① 检索元数据    │  本地 DB 模糊搜索 → NLC 校验 → 书葵网取书签
 │ 输出：书名/ISBN/ │  无数据库时降级为纯 Anna's Archive 搜索
-│ SS码/书签文本     │
+│ SS码/书签文本    │
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│ ② 下载 PDF       │  Anna's Archive 搜 MD5 → stacks 下载管理器排队
-│ 输出：本地 PDF    │  无 stacks 时尝试 curl 直链下载
+│ ② 下载 PDF      │  Anna's Archive 搜 MD5 → stacks 下载管理器排队
+│ 输出：本地 PDF   │  无 stacks 时尝试 curl 直链下载
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│ ③ OCR            │  ocrmypdf + PaddleOCR（--jobs 1 防乱码）
-│ 输出：可搜索 PDF  │  后验证 CJK 文字比率（已有文字层则跳过）
+│ ③ OCR           │  ocrmypdf + PaddleOCR（--jobs 1 防乱码）
+│ 输出：可搜索 PDF │  后验证 CJK 文字比率（已有文字层则跳过）
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│ ④ 生成书签       │  书葵网书签优先 → 降级A（仅目录页）→ 降级B（AI Vision）
-│ 输出：带书签 PDF  │  脚本：scripts/inject_bookmarks.py
+│ ④ 生成书签      │  书葵网书签优先 → 降级A（仅目录页）→ 降级B（AI Vision）
+│ 输出：带书签 PDF │  脚本：scripts/inject_bookmarks.py
 └────────┬────────┘
          ▼
-┌─────────────────┐        ┌─────────────────┐
-│ ⑤ 上传 + 直链    │        │ ⑥ 生成报告       │
-│ 可选：无后端则跳过 │   →   │ 参照 report-     │
-│ Z-File / S3 等   │        │ template.md     │
-└─────────────────┘        └─────────────────┘
+┌─────────────────┐        ┌───────────────────────────┐
+│ ⑤ 上传 + 直链   │        │ ⑥ 渠道配置状态检查 + ⑦ 报告  │
+│ 可选：无后端则跳过│   →   │ config.yaml 打码展示后      │
+│ Z-File / S3 等  │        │ 按 report-template.md 输出  │
+└─────────────────┘        └───────────────────────────┘
 ```
 
 ---
