@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.spec.bak
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+backend/data/*.db
+backend/tools/flaresolverr/
+backend/dist/
+frontend/dist/
+*.exe
+*.zip
+*.torrent
+
+# Config with secrets
+config.local.json
+auth.json
+.env
+
+# Temp
+tmp_downloads/
+tmp/
+*.tmp
+*.log
+
+# Large files
+*.db
+*.zst
+
+node_modules/

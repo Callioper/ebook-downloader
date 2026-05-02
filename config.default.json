@@ -1,0 +1,16 @@
+{
+  "host": "0.0.0.0",
+  "port": 8000,
+  "download_dir": "",
+  "finished_dir": "",
+  "tmp_dir": "",
+  "stacks_base_url": "http://localhost:7788",
+  "zfile_base_url": "http://192.168.0.7:32771",
+  "zfile_external_url": "https://zfile.vip.cpolar.top",
+  "zfile_storage_key": "1",
+  "http_proxy": "http://127.0.0.1:6244",
+  "ocr_jobs": 1,
+  "ocr_languages": "chi_sim+eng",
+  "ocr_timeout": 7200,
+  "nlc_max_workers": 5
+}
