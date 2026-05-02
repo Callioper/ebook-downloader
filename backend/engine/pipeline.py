@@ -179,7 +179,11 @@ def _resolve_geter_path(config: AppConfig) -> str:
     except Exception:
         pass
     # Fallback common locations
-    for p in [str(Path.home() / "EbookDataGeter"), "/home/eclaw/EbookDataGeter"]:
+    candidates = [str(Path.home() / "EbookDataGeter")]
+    user = os.environ.get("USER", os.environ.get("USERNAME", ""))
+    if user:
+        candidates.append(f"/home/{user}/EbookDataGeter")
+    for p in candidates:
         if os.path.isdir(p):
             return p
     return ""

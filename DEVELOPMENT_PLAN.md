@@ -403,7 +403,7 @@ OCR 方案和耗时
 
 **关键配置**：
 - `After=ebookdatabase.service docker.service`（依赖 EbookDatabase + stacks Docker）
-- `Environment="TMPDIR=/home/eclaw/tmp/ocrmypdf"`（OCR 固定临时目录）
+- `Environment="TMPDIR=/home/{user}/tmp/ocrmypdf"`（OCR 固定临时目录）
 - `Restart=no`（长任务不宜自动重启）
 
 **验收标准**：`systemctl start book-downloader-web` → 服务正常运行
@@ -480,8 +480,8 @@ ebook-downloader/
 | **Z-File** | 192.168.0.7:32771 | 文件上传/直链 | ✅ 上传 |
 | **ocrmypdf + PaddleOCR** | 系统命令行 | PDF OCR 识别 | ⚠️ OCR |
 | **qpdf** | 系统命令行 | PDF 结构压缩 | ○ 压缩 |
-| **nlc_isbn** | /home/eclaw/EbookDataGeter | NLC 元数据补全 | ⚠️ 检索 |
-| **bookmarkget** | /home/eclaw/EbookDataGeter | 书葵网书签获取 | ⚠️ 检索 |
+| **nlc_isbn** | `/home/{user}/EbookDataGeter` | NLC 元数据补全 | ⚠️ 检索 |
+| **bookmarkget** | `/home/{user}/EbookDataGeter` | 书葵网书签获取 | ⚠️ 检索 |
 | **WSL2 代理** | 127.0.0.1:6244 | Anna's Archive 外网访问 | ✅ 下载 |
 
 ### 5.2 软件依赖版本
@@ -502,7 +502,7 @@ OCR:   ocrmypdf 17+, paddleocr 3.2+, PaddlePaddle 3.0+
 |------|------|------|------|
 | **OCR 阻塞事件循环** | 服务无响应 | 高 | 丢到独立线程池 (`run_in_executor`)，设置超时 |
 | **PaddlePaddle 多线程乱码** | OCR 文字层损坏 | 高 | 强制 `--jobs 1` + OCR 后用 `is_ocr_readable()` 检测 |
-| **WSL2 /tmp 自动清理** | OCR 中途 FileNotFoundError | 中 | `TMPDIR=/home/eclaw/tmp/ocrmypdf` 固定目录 |
+| **WSL2 /tmp 自动清理** | OCR 中途 FileNotFoundError | 中 | `TMPDIR=/home/{user}/tmp/ocrmypdf` 固定目录 |
 | **Anna's Archive 代理不生效** | 下载步骤超时 | 高 | 使用 `subprocess.run(curl)` 继承环境变量，不用 urllib |
 | **Z-File Token 41018** | 上传失败 | 中 | Cookie 会话认证为主路径，Token 作备选 |
 | **EbookDatabase 不可用** | 检索失败 | 中 | NLC fallback 构造候选，提供友好错误提示 |

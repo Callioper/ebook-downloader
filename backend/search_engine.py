@@ -34,8 +34,8 @@ def _resolve_db_dir() -> str:
     candidates = [
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),
         str(Path.home() / "EbookDatabase" / "instance"),
-        r"\\wsl.localhost\Ubuntu\home\eclaw\EbookDatabase\instance",
-        "/home/eclaw/EbookDatabase/instance",
+        r"\\wsl.localhost\Ubuntu\home\%s\EbookDatabase\instance" % os.environ.get("USER", os.environ.get("USERNAME", "")),
+        "/home/%s/EbookDatabase/instance" % os.environ.get("USER", os.environ.get("USERNAME", "")),
     ]
     for p in candidates:
         if os.path.isdir(p):

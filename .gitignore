@@ -45,3 +45,9 @@ tmp/
 *.zst
 
 node_modules/
+
+# Dev-only tools
+check_schema.py
+backend/check_schema.py
+check_db_schema.py
+DEVELOPMENT_PLAN.md

@@ -286,8 +286,7 @@ async def detect_paths():
     candidates.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"))
     candidates.append(str(home / "EbookDatabase" / "instance"))
 
-    candidates.append("/home/%s/EbookDatabase/instance" % os.environ.get("USER", os.environ.get("USERNAME", "eclaw")))
-    candidates.append("/home/eclaw/EbookDatabase/instance")
+    candidates.append("/home/%s/EbookDatabase/instance" % os.environ.get("USER", os.environ.get("USERNAME", "")))
 
     wsl_paths = []
     wsl_homes = [
@@ -297,7 +296,8 @@ async def detect_paths():
         r"\\wsl$\Debian\home",
     ]
     for base in wsl_homes:
-        for user_dir in ["eclaw", os.environ.get("USER", ""), os.environ.get("USERNAME", ""), "*"]:
+        user_dirs = [v for v in [os.environ.get("USER", ""), os.environ.get("USERNAME", "")] if v] + ["*"]
+        for user_dir in user_dirs:
             if user_dir and user_dir != "*":
                 wsl_paths.append(os.path.join(base, user_dir, "EbookDatabase", "instance"))
             elif user_dir == "*":

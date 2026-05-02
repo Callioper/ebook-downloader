@@ -1,8 +1,9 @@
 import sqlite3, json, os
 
+user = os.environ.get("USER", os.environ.get("USERNAME", ""))
 db_paths = [
-    r'\\wsl.localhost\Ubuntu\home\eclaw\EbookDatabase\instance\DX_2.0-5.0.db',
-    r'\\wsl.localhost\Ubuntu\home\eclaw\EbookDatabase\instance\DX_6.0.db',
+    r'\\wsl.localhost\Ubuntu\home\%s\EbookDatabase\instance\DX_2.0-5.0.db' % user,
+    r'\\wsl.localhost\Ubuntu\home\%s\EbookDatabase\instance\DX_6.0.db' % user,
 ]
 
 for db in db_paths:
