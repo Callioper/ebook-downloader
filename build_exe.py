@@ -1,4 +1,4 @@
-# Book Downloader — Build Script for Windows .exe
+# Agent Ebook Downloader — Build Script for Windows .exe
 # Usage: python build_exe.py
 
 import os
@@ -42,11 +42,11 @@ def build_frontend():
 def build_pyinstaller():
     step("Building PyInstaller executable...")
     subprocess.run(
-        [sys.executable, "-m", "PyInstaller", "--clean", "--noconfirm", "book-downloader.spec"],
+        [sys.executable, "-m", "PyInstaller", "--clean", "--noconfirm", "agent-ebook-downloader.spec"],
         cwd=str(BACKEND_DIR),
         check=True,
     )
-    exe = BACKEND_DIR / "dist" / "BookDownloader.exe"
+    exe = BACKEND_DIR / "dist" / "AgentEbookDownloader.exe"
     if not exe.exists():
         raise RuntimeError(f"PyInstaller build failed: {exe} not found")
     print(f"  Executable built: {exe}")
@@ -57,7 +57,7 @@ def copy_output(exe_path: Path):
     step("Collecting output...")
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    dest_exe = OUTPUT_DIR / "BookDownloader.exe"
+    dest_exe = OUTPUT_DIR / "AgentEbookDownloader.exe"
     shutil.copy2(exe_path, dest_exe)
 
     config_default = BACKEND_DIR.parent / "config.default.json"
@@ -82,8 +82,8 @@ def main():
     copy_output(exe_path)
 
     step("Build complete!")
-    print(f"  Executable: {OUTPUT_DIR / 'BookDownloader.exe'}")
-    print(f"  Run: {OUTPUT_DIR / 'BookDownloader.exe'}")
+    print(f"  Executable: {OUTPUT_DIR / 'AgentEbookDownloader.exe'}")
+    print(f"  Run: {OUTPUT_DIR / 'AgentEbookDownloader.exe'}")
     print(f"  Web UI: http://localhost:8000")
     print(f"  API docs: http://localhost:8000/docs")
 

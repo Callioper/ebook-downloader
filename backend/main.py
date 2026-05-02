@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Book Downloader Web Server — FastAPI entry point."""
+"""Agent Ebook Downloader — FastAPI entry point."""
 
 import atexit
 import os
@@ -94,7 +94,7 @@ async def lifespan(app: FastAPI):
     _stop_flaresolverr()
 
 
-app = FastAPI(title="Book Downloader", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Agent Ebook Downloader", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -140,12 +140,12 @@ if STATIC_DIR.exists() and (STATIC_DIR / "index.html").is_file():
         idx = STATIC_DIR / "index.html"
         if idx.is_file():
             return HTMLResponse(content=idx.read_bytes())
-        return {"message": "Book Downloader API", "docs": "/docs", "frontend": "not found"}
+        return {"message": "Agent Ebook Downloader API", "docs": "/docs", "frontend": "not found"}
 
 else:
     @app.get("/")
     async def root():
-        return {"message": "Book Downloader API", "docs": "/docs", "frontend": "not built"}
+        return {"message": "Agent Ebook Downloader API", "docs": "/docs", "frontend": "not built"}
 
 
 def run_server():
@@ -179,7 +179,7 @@ if __name__ == "__main__":
         server_thread.start()
 
         url = f"http://localhost:{config.port}"
-        print(f"\n  Book Downloader: {url}\n")
+        print(f"\n  Agent Ebook Downloader: {url}\n")
 
         # Wait for server to be ready
         for _ in range(50):

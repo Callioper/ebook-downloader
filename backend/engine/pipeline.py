@@ -453,7 +453,7 @@ def _load_aa_cookies(config: AppConfig) -> dict:
     """
     cookie_paths = [
         os.path.join(config.tmp_dir, "cookie-annas-archive-gd.json"),
-        os.path.join(str(Path.home()), ".book-downloader", "aa_cookies.json"),
+        os.path.join(str(Path.home()), ".agent-ebook-downloader", "aa_cookies.json"),
     ]
     for cp in cookie_paths:
         if not os.path.exists(cp):

@@ -3,14 +3,14 @@ import os
 from pathlib import Path
 from dataclasses import dataclass
 
-CONFIG_DIR = Path(os.environ.get("BDW_CONFIG_DIR", Path.home() / ".book-downloader"))
+CONFIG_DIR = Path(os.environ.get("BDW_CONFIG_DIR", Path.home() / ".agent-ebook-downloader"))
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 DEFAULT_CONFIG = {
     "host": "0.0.0.0",
     "port": 8000,
-    "download_dir": str(Path.home() / "Downloads" / "book-downloader"),
-    "finished_dir": str(Path.home() / "Downloads" / "book-downloader" / "finished"),
+    "download_dir": str(Path.home() / "Downloads" / "agent-ebook-downloader"),
+    "finished_dir": str(Path.home() / "Downloads" / "agent-ebook-downloader" / "finished"),
     "tmp_dir": str(Path.home() / "tmp" / "bdw"),
     "stacks_base_url": "http://localhost:7788",
     "zfile_base_url": "http://192.168.0.7:32771",
@@ -36,8 +36,8 @@ DEFAULT_CONFIG = {
 class AppConfig:
     host: str = "0.0.0.0"
     port: int = 8000
-    download_dir: str = str(Path.home() / "Downloads" / "book-downloader")
-    finished_dir: str = str(Path.home() / "Downloads" / "book-downloader" / "finished")
+    download_dir: str = str(Path.home() / "Downloads" / "agent-ebook-downloader")
+    finished_dir: str = str(Path.home() / "Downloads" / "agent-ebook-downloader" / "finished")
     tmp_dir: str = str(Path.home() / "tmp" / "bdw")
     stacks_base_url: str = "http://localhost:7788"
     zfile_base_url: str = "http://192.168.0.7:32771"

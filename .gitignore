@@ -50,4 +50,8 @@ node_modules/
 check_schema.py
 backend/check_schema.py
 check_db_schema.py
+backend/test_bittorrent.py
 DEVELOPMENT_PLAN.md
+
+# Build artifacts
+frontend/tsconfig.tsbuildinfo

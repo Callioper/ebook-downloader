@@ -41,7 +41,7 @@ pyz = PYZ(a.pure, a.zipped_data)
 
 exe = EXE(
     pyz, a.scripts, a.binaries, a.zipfiles, a.datas,
-    [], name='BookDownloader', debug=False, strip=False,
+    [], name='AgentEbookDownloader', debug=False, strip=False,
     upx=False, console=True, runtime_tmpdir=None,
     target_arch=None, codesign_identity=None, entitlements_file=None,
 )

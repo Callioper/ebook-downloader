@@ -2,7 +2,7 @@ import sqlite3, os, shutil
 
 user = os.environ.get("USER", os.environ.get("USERNAME", ""))
 src = r'\\wsl.localhost\Ubuntu\home\%s\EbookDatabase\instance\DX_2.0-5.0.db' % user
-dst = r'D:\opencode\ebook-downloader\tmp_check.db'
+dst = r'D:\opencode\agent-ebook-downloader\tmp_check.db'
 
 shutil.copy2(src, dst)
 
